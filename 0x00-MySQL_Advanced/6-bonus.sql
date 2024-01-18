@@ -1,18 +1,26 @@
---create to procedure to add bonus
+-- Creates a stored procedure AddBonus that adds a new
+-- correction for a student.
+DROP PROCEDURE IF EXISTS AddBonus;
 DELIMITER $$
-
-CREATE PROCEDURE AddBonus (IN user_id CHAR(255), project_name CHAR(255), score INT)
+CREATE PROCEDURE AddBonus (user_id INT, project_name VARCHAR(255), score FLOAT)
 BEGIN
-    UPDATE users SET users.average_score = score WHERE users.id = user_id;
+    DECLARE project_count INT DEFAULT 0;
+    DECLARE project_id INT DEFAULT 0;
 
-    SET @project_id = COALESCE((SELECT id FROM projects WHERE name = project_name), 0);
-
-    IF @project_id = 0 THEN
-        INSERT INTO projects (name) VALUES (project_name);
-        SET @project_id = LAST_INSERT_ID();
+    SELECT COUNT(id)
+        INTO project_count
+        FROM projects
+        WHERE name = project_name;
+    IF project_count = 0 THEN
+        INSERT INTO projects(name)
+            VALUES(project_name);
     END IF;
-	INSERT INTO corrections (user_id, project_id, score) VALUES (user_id, @project_id, score);
-END;
-$$
-
+    SELECT id
+        INTO project_id
+        FROM projects
+        WHERE name = project_name;
+    INSERT INTO corrections(user_id, project_id, score)
+        VALUES (user_id, project_id, score);
+END $$
 DELIMITER ;
+$$
