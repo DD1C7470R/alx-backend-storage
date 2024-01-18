@@ -1,3 +1,4 @@
+-- create script to compute safe division
 DELIMITER $$
 
 CREATE FUNCTION SafeDiv (a INT, b INT)
